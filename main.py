@@ -11,8 +11,3 @@ df=pd.read_excel(
 )
 print(df)
 
-
-
-
-
-
