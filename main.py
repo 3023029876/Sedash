@@ -17,5 +17,5 @@ df=pd.read_excel(io="supermarkt_sales.xlsx",
                  usecols="B:R",
                  nrows=1000,
 )
-df_selection=(df.iloc[150:350])
+df_selection=(df.iloc[150:350])#hui
 st.dataframe(df_selection)
