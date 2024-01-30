@@ -1,13 +1,21 @@
 import pandas as pd
+import streamlit as st
 
 
-df=pd.read_excel(
-    io="ТАКСИ ЗАДАНИЕ 1.xlsx",
-    engine="openpyxl",
-    sheet_name="Лист1",
-    skiprows=0,
-    usecols="A:D",
-    nrows=16,
+
+st.set_page_config(page_title="Supermarket",
+                              page_icon=":rainbow:",
+                              layout="wide"
 )
-print(df)
 
+
+
+df=pd.read_excel(io="supermarkt_sales.xlsx",
+                 engine="openpyxl",
+                 sheet_name="Sales",
+                 skiprows=3,
+                 usecols="B:R",
+                 nrows=1000,
+)
+df_selection=(df.iloc[150:350])
+st.dataframe(df_selection)
