@@ -17,5 +17,37 @@ df=pd.read_excel(io="supermarkt_sales.xlsx",
                  usecols="B:R",
                  nrows=1000,
 )
-df_selection=(df.iloc[150:350])#hui
+df_selection=(df.iloc[150:350])
+
+
+
+st.sidebar.header("фильтр")
+city=st.sidebar.multiselect(
+                "Выберете город",
+                options=df["City"].unique(),
+                default=df["City"].unique()
+ )
+
+customer_type=st.sidebar.multiselect(
+                "Выберете тип покупателя",
+                options=df["Customer_type"].unique(),
+                default=df["Customer_type"].unique()
+)
+
+
+gender=st.sidebar.multiselect(
+                "Выберете пол",
+                options=df["Gender"].unique(),
+                default=df["Gender"].unique()
+)
+
+branch=st.sidebar.multiselect(
+                "Выберете категорию",
+                options=df["Branch"].unique(),
+                default=df["Branch"].unique()
+)
+
+df_selection=df.query(
+    "City==@city & Customer_type==@customer_type & Gender==@gender & Branch==@branch "
+)
 st.dataframe(df_selection)
