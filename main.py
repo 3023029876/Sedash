@@ -1,7 +1,6 @@
 import pandas as pd
-import openpyxl
 import streamlit as st
-
+import plotly_express as px
 
 
 st.set_page_config(page_title="Supermarket",
@@ -9,17 +8,21 @@ st.set_page_config(page_title="Supermarket",
                               layout="wide"
 )
 
+@st.cache
+def get_data_from_excel():
+ df=pd.read_excel(
+        io="supermarkt_sales.xlsx",
+        engine="openpyxl",
+        sheet_name="Sales",
+        skiprows=3,
+        usecols="B:R",
+        nrows=1000,
+    )
 
 
-df=pd.read_excel(io="supermarkt_sales.xlsx",
-                 engine="openpyxl",
-                 sheet_name="Sales",
-                 skiprows=3,
-                 usecols="B:R",
-                 nrows=1000,
-)
-df_selection = (df.iloc[150:350])
-
+ df["hour"]=pd.to_datetime(df["Time"],format="%H:%M:%S").dt.hour
+ return df
+df =get_data_from_excel()
 
 
 st.sidebar.header("Фильтр")
@@ -48,12 +51,12 @@ branch=st.sidebar.multiselect(
                 default=df["Branch"].unique()
 )
 
-df_selection=df.query(
+df_selection=(df.iloc[150:350].query(
     "City==@city & Customer_type==@customer_type & Gender==@gender & Branch==@branch "
-)
-st.dataframe(df_selection)
+))
 
-st.title(":bar_chart: Панель правления продажами")
+
+st.title(":bar_chart: Панель управления продажами")
 st.markdown("##")
 
 total_sales=int(df_selection["Total"].sum())
@@ -73,6 +76,53 @@ with right_column:
     st.subheader(f"US ${average_sale_by_transaction}")
 
 st.markdown("---")
+
+sales_by_product_line=(
+    df_selection.groupby(by=["Product_line"]).sum(numeric_only=True)[["Total"]].sort_values(by="Total")
+)
+fig_product_sales=px.bar(
+    sales_by_product_line,
+    x="Total",
+    y=sales_by_product_line.index,
+    orientation="h",
+    title="<b>Продажи по продуктовой линии</b>",
+    color_discrete_sequence=["#0083B8"]*len(sales_by_product_line),
+    template="plotly_white",
+)
+fig_product_sales.update_layout(
+    plot_bgcolor="rgba(0,0,0,0)",
+    xaxis=(dict(showgrid=False))
+)
+
+
+sales_by_hour=df_selection.groupby(by=["hour"]).sum(numeric_only=True)[["Total"]]
+fig_hour_sales=px.bar(
+    sales_by_hour,
+    x=sales_by_hour.index,
+    y="Total",
+    title="<b>Продажи в час</b>",
+    color_discrete_sequence=["#0083B8"]*len(sales_by_hour),
+    template="plotly_white",
+)
+fig_hour_sales.update_layout(
+    xaxis=dict(tickmode="linear"),
+    plot_bgcolor="rgba(0,0,0,0)",
+    yaxis=(dict(showgrid=False)),
+)
+left_column,right_column=st.columns(2)
+left_column.plotly_chart(fig_hour_sales,use_container_width=True)
+right_column.plotly_chart(fig_product_sales,use_container_width=True)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
