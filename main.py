@@ -1,4 +1,5 @@
 import pandas as pd
+import openpyxl
 import streamlit as st
 
 
@@ -17,11 +18,11 @@ df=pd.read_excel(io="supermarkt_sales.xlsx",
                  usecols="B:R",
                  nrows=1000,
 )
-df_selection=(df.iloc[150:350])
+df_selection = (df.iloc[150:350])
 
 
 
-st.sidebar.header("фильтр")
+st.sidebar.header("Фильтр")
 city=st.sidebar.multiselect(
                 "Выберете город",
                 options=df["City"].unique(),
@@ -51,3 +52,43 @@ df_selection=df.query(
     "City==@city & Customer_type==@customer_type & Gender==@gender & Branch==@branch "
 )
 st.dataframe(df_selection)
+
+st.title(":bar_chart: Панель правления продажами")
+st.markdown("##")
+
+total_sales=int(df_selection["Total"].sum())
+average_rating=round(df_selection["Rating"].mean(),1)
+star_rating=":star:"*int(round(average_rating,0))
+average_sale_by_transaction=round(df_selection["Total"].mean(),2)
+
+left_column,middle_column,right_column=st.columns(3)
+with left_column:
+    st.subheader("Общий объём продаж")
+    st.subheader(f"US $ {total_sales:,}")
+with middle_column:
+    st.subheader("Средняя оценка")
+    st.subheader(f"{average_rating} {star_rating}")
+with right_column:
+    st.subheader("Средний объём продаж")
+    st.subheader(f"US ${average_sale_by_transaction}")
+
+st.markdown("---")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
